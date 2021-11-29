@@ -22,36 +22,13 @@ async function deleteUser(modal, id) {
                     <input type="text" class="form-control username" id="username" value="${user.username}" readonly>
                </div>
 
-                <div class="form-group">
-                    <label for="name" class="com-form-label">Name</label>
-                    <input type="text" class="form-control" id="name" value="${user.name}" readonly>
-                </div>
-
-                <div class="form-group">
-                    <label for="surname" class="com-form-label">Surname</label>
-                    <input type="text" class="form-control" id="surname" value="${user.surname}" readonly>
-                </div>
-
-                <div class="form-group">
-                    <label for="age" class="com-form-label">Age</label>
-                    <input type="number" class="form-control" id="age" value="${user.age}" readonly>
-                    <div class="invalid-feedback">
-                        Age cannot be empty
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="email" class="com-form-label">Email</label>
-                    <input type="text" class="form-control" id="email" value="${user.email}"  readonly>
-                </div>
-                
-                 <div class="form-group">
-                <label for="roles" class="com-form-label">Role:</label>
-                <select id="roles" class="form-control select" size="2" name="roles" style="max-height: 100px" disabled>
-                <option>${user.roles.map(role => " " + role.role.substr(5))}</option>
-            })}</option>
-                </select>
-            </div>
+               <div class="form-group">
+                    <label for="roles" class="com-form-label">Role:</label>
+                    <select id="roles" class="form-control select" size="2" name="roles" style="max-height: 100px" disabled>
+                        <option>${user.roles.map(role => " " + role.role.substr(5))}</option>
+                                    })}</option>
+                    </select>
+               </div>
 
             </form>
         `;

@@ -8,10 +8,6 @@ async function getUser() {
                 <tr>
                     <td>${user.userId}</td>
                     <td>${user.username}</td>
-                    <td>${user.name}</td>
-                    <td>${user.surname}</td>
-                    <td>${user.age}</td>
-                    <td>${user.email}</td>
                     <td>${user.roles.map(e => " " + e.role.substr(5))}</td>
                 </tr>
             `;
@@ -63,10 +59,6 @@ async function getUsers() {
                 <tr>
                     <td>${user.userId}</td>
                     <td>${user.username}</td>
-                    <td>${user.name}</td>
-                    <td>${user.surname}</td>
-                    <td>${user.age}</td>
-                    <td>${user.email}</td>
                     <td>${user.roles.map(e => " " + e.role.substr(5))}</td>
                     <td>
                         <button type="button" data-userid="${user.userId}" data-action="edit" class="btn btn-info"
