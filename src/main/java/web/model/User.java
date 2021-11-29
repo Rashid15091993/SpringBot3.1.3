@@ -5,40 +5,76 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
-import java.util.*;
+import javax.validation.constraints.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 
 @Entity
-@Table(name="users")
+@Table(name = "users")
 public class User implements UserDetails {
-
-    private @Id
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    long id;
+    private Long userId;
 
-    @Column(name = "name")
+    @Pattern(regexp = "[A-Za-zа-яёА-ЯЁ]{2,15}", message = "Name should be between 2 and 15 characters without space")
     private String name;
 
+    @Pattern(regexp = "[A-Za-zа-яёА-ЯЁ]{2,15}", message = "Surname should be between 2 and 15 characters without space")
+    private String surname;
+
+    @Min(value = 0, message = "Age should be >= 0 & < 128")
+    @Max(value = 127, message = "Age should be >= 0 & < 128")
+    private byte age;
+
+    @Pattern(regexp = "([A-z0-9_.-]+)@([A-z0-9_.-]+).([A-z]{2,8})", message = "Enter correct email")
+    private String email;
+
+    @NotEmpty(message = "Username cannot be empty")
+    @Pattern(regexp = "[A-Za-z]{2,15}", message = "Name should be between 2 and 15 latin characters without space")
+    @Size(min = 2, max = 15, message = "Username should be between 2 and 15 latin characters")
+    @Column(unique = true)
+    private String username;
+
+    @NotEmpty(message = "Password cannot be empty")
+    @Size(min = 4, message = "Password should be greater then 4 symbols")
     private String password;
-    @ManyToMany(cascade = CascadeType.ALL, fetch=FetchType.EAGER)
+
+    @NotEmpty(message = "The role cannot be omitted")
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "users_roles",
+            joinColumns = @JoinColumn(name = "userId"),
+            inverseJoinColumns = @JoinColumn(name = "roleId"))
     private Set<Role> roles;
 
     public User() {
-
     }
 
-    public User(Long id, String name, String password, Set<Role> roles) {
-        this.id = id;
+    public User(String name, String surname, byte age, String email, String username, String password, Set<Role> roles) {
         this.name = name;
+        this.surname = surname;
+        this.age = age;
+        this.email = email;
+        this.username = username;
         this.password = password;
         this.roles = roles;
     }
 
-    public Long getId() {
-        return id;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public String getName() {
@@ -49,6 +85,37 @@ public class User implements UserDetails {
         this.name = name;
     }
 
+    public String getSurname() {
+        return surname;
+    }
+
+    public void setSurname(String surname) {
+        this.surname = surname;
+    }
+
+    public byte getAge() {
+        return age;
+    }
+
+    public void setAge(byte age) {
+        this.age = age;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -58,7 +125,6 @@ public class User implements UserDetails {
         for (Role role : roles) {
             authorities.add(new SimpleGrantedAuthority(role.getRole()));
         }
-
         return authorities;
     }
 
@@ -69,7 +135,7 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return name;
+        return username;
     }
 
     @Override
@@ -90,33 +156,5 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
-    }
-
-    public boolean hasRole(int roleId) {
-        if (null == roles|| 0 == roles.size()) {
-            return false;
-        }
-        Optional<Role> findRole = roles.stream().filter(role -> roleId == role.getId()).findFirst();
-        return findRole.isPresent();
-    }
-
-    public boolean hasRole(String roleName) {
-        if (null == roles|| 0 == roles.size()) {
-            return false;
-        }
-        Optional<Role> findRole = roles.stream().filter(role -> roleName.equals(role.getRole())).findFirst();
-        return findRole.isPresent();
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public Set<Role> getRoles() {
-        return roles;
-    }
-
-    public void setRoles(Set<Role> roles) {
-        this.roles = roles;
     }
 }

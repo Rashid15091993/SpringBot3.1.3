@@ -1,88 +1,74 @@
 package web.service;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import web.dao.RoleDao;
-import web.dao.UserDao;
+import web.DAO.RoleDAO;
+import web.DAO.UserDAO;
 import web.model.Role;
 import web.model.User;
 
-import javax.persistence.PersistenceException;
+import javax.annotation.PostConstruct;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
+@Transactional
 @Service
 public class UserServiceImpl implements UserService {
-    @Autowired
-    private UserDao userDao;
 
-    @Autowired
-    private RoleDao roleDao;
+    private final UserDAO userDAO;
+    private final RoleDAO roleDAO;
+    private final PasswordEncoder passwordEncoder;
 
-
-    @Transactional
-    @Override
-    public List<User> getAllUsers() {
-        return userDao.getAllUsers();
+    public UserServiceImpl(UserDAO userDAO, RoleDAO roleDAO, PasswordEncoder passwordEncoder) {
+        this.userDAO = userDAO;
+        this.roleDAO = roleDAO;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
-    public List<Role> findAllRoles() {
-        return roleDao.findAll();
+    public User passwordCoder(User user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        return user;
     }
 
-    @Transactional
     @Override
-    public void createOrUpdateUser(User user) {
-        if (0 == user.getId()) {
-            createUser(user);
-        } else {
-            updateUser(user);
+    public List<User> findAll() {
+        return userDAO.findAll();
+    }
+
+    @Override
+    public User getById(long id) {
+        User user = null;
+        Optional<User> optional = userDAO.findById(id);
+        if(optional.isPresent()) {
+            user = optional.get();
         }
-    }
-
-    @Transactional
-    @Override
-    public void createUser(User user) {
-        userDao.createUser(user);
-    }
-
-    @Transactional
-    @Override
-    public void updateUser(User user) {
-        userDao.updateUser(user);
-    }
-
-    @Transactional
-    @Override
-    public User readUser(long id) {
-        return userDao.readUser(id);
-    }
-
-    @Transactional
-    @Override
-    public void deleteUser(long id) {
-        Optional<User> user = Optional.ofNullable(userDao.getUserById(id));
-        if (user.isPresent()) {
-            try {
-                userDao.deleteUser(user.get());
-            } catch (PersistenceException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    @Transactional
-    @Override
-    public void update(int id, User user) {
-        User updateuser = readUser(id);
-        updateuser.setName(user.getName());
+        return user;
     }
 
     @Override
-    public UserDetails loadUserByUsername(String s) throws UsernameNotFoundException {
-        return userDao.getUserByName(s);
+    public void save(User user) {
+        userDAO.save(passwordCoder(user));
     }
+
+    @Override
+    public void update(User user) {
+        userDAO.save(user);
+    }
+
+    @Override
+    public void deleteById(long id) {
+        userDAO.deleteById(id);
+    }
+
+    @Override
+    public User findByUsername(String username) {
+        return userDAO.findByUsername(username);
+    }
+
+
 }
+
